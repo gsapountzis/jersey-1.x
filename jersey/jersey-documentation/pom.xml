@@ -106,6 +106,7 @@
                     <targetDirectory>${project.build.directory}/docbook</targetDirectory>                    
                     <htmlStylesheet>http://jersey.java.net/documentation.css</htmlStylesheet>
                     <htmlCustomization>${src.dir}/customizations.xsl</htmlCustomization>
+                    <foCustomization>${src.dir}/fonts.xsl</foCustomization>
                     <partAutolabel>true</partAutolabel>
                     <sectionAutolabel>true</sectionAutolabel>
                     <sectionLabelIncludesComponentLabel>true</sectionLabelIncludesComponentLabel>
