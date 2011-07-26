@@ -70,10 +70,18 @@ final class StringReaderExtractor extends AbstractStringReaderExtractor {
                 throw new ExtractorContainerException(ex);
             }
         }
-        if (result == null && defaultStringValue != null) {
-            result = sr.fromString(defaultStringValue);
+        if (result != null) {
+            return result;
         }
 
-        return result;
+        return extractDefaultValue();
+    }
+
+    public Object extractDefaultValue() {
+        if (defaultStringValue != null) {
+            return sr.fromString(defaultStringValue);
+        }
+
+        return null;
     }
 }

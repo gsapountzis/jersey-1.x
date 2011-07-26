@@ -101,7 +101,14 @@ final class PrimitiveValueOfExtractor
         String v = parameters.getFirst(parameter);
         if (v != null && !v.trim().isEmpty()) {
             return getValue(v);
-        } else if (defaultValue != null) {
+        }
+
+        return extractDefaultValue();
+    }
+
+    @Override
+    public Object extractDefaultValue() {
+        if (defaultValue != null) {
             // TODO do we need to clone the default value
             return defaultValue;
         }

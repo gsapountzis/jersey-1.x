@@ -71,7 +71,13 @@ abstract class CollectionStringReaderExtractor<V extends Collection>
             }
 
             return valueList;
-        } else if (defaultStringValue != null) {
+        }
+
+        return extractDefaultValue();
+    }
+
+    public Object extractDefaultValue() {
+        if (defaultStringValue != null) {
             final V valueList = getInstance();
             valueList.add(sr.fromString(defaultStringValue));
             return valueList;

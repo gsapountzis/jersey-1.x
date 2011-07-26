@@ -77,7 +77,13 @@ abstract class CollectionStringExtractor<V extends Collection<String>>
             V copy = getInstance();
             copy.addAll(stringList);
             return copy;
-        } else if (defaultValue != null) {
+        }
+
+        return extractDefaultValue();
+    }
+
+    public Object extractDefaultValue() {
+        if (defaultValue != null) {
             V l = getInstance();
             l.add(defaultValue);
             return l;

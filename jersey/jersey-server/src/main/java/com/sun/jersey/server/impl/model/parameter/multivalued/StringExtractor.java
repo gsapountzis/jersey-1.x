@@ -70,6 +70,14 @@ final class StringExtractor implements MultivaluedParameterExtractor {
 
     public Object extract(MultivaluedMap<String, String> parameters) {
         String value = parameters.getFirst(parameter);
-        return (value != null) ? value : defaultValue;
+        if (value != null) {
+            return value;
+        }
+
+        return extractDefaultValue();
+    }
+
+    public Object extractDefaultValue() {
+        return defaultValue;
     }
 }

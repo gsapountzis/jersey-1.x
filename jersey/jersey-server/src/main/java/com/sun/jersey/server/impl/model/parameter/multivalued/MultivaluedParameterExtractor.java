@@ -53,4 +53,6 @@ public interface MultivaluedParameterExtractor {
     String getDefaultStringValue();
     
     Object extract(MultivaluedMap<String, String> parameters);
+
+    Object extractDefaultValue();
 }
