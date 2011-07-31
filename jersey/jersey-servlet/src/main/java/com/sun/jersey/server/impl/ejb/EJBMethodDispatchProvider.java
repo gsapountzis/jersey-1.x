@@ -42,13 +42,13 @@ package com.sun.jersey.server.impl.ejb;
 import com.sun.jersey.api.model.AbstractResource;
 import com.sun.jersey.api.model.AbstractResourceMethod;
 import com.sun.jersey.spi.container.JavaMethodInvoker;
-import com.sun.jersey.spi.container.ResourceMethodCustomInvokerDispatchFactory;
+import com.sun.jersey.spi.container.ResourceMethodCustomInvokerDispatchProvider;
+import com.sun.jersey.spi.container.ResourceMethodDispatchAdapter;
 import com.sun.jersey.spi.container.ResourceMethodDispatchProvider;
 import com.sun.jersey.spi.dispatch.RequestDispatcher;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -59,17 +59,24 @@ import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateful;
 import javax.ejb.Stateless;
-
 import javax.ws.rs.core.Context;
 
 /**
  *
  * @author japod
  */
-public class EJBRequestDispatcherProvider implements ResourceMethodDispatchProvider {
+public class EJBMethodDispatchProvider implements ResourceMethodDispatchProvider, ResourceMethodDispatchAdapter {
 
     @Context
-    ResourceMethodCustomInvokerDispatchFactory rdFactory;
+    private ResourceMethodCustomInvokerDispatchProvider customInvokerDispatchProvider;
+
+    private ResourceMethodDispatchProvider delegateDispatchProvider;
+
+    @Override
+    public ResourceMethodDispatchProvider adapt(ResourceMethodDispatchProvider delegateDispatchProvider) {
+        this.delegateDispatchProvider = delegateDispatchProvider;
+        return this;
+    }
 
     @Override
     public RequestDispatcher create(AbstractResourceMethod abstractResourceMethod) {
@@ -81,7 +88,7 @@ public class EJBRequestDispatcherProvider implements ResourceMethodDispatchProvi
             final Class<?> resourceClass = declaringResource.getResourceClass();
             final Method javaMethod = abstractResourceMethod.getMethod();
 
-            for (Class iFace: remoteAndLocalIfaces(resourceClass)) {
+            for (Class iFace: getRemoteAndLocalIfaces(resourceClass)) {
                     try {
                         final Method iFaceMethod = iFace.getDeclaredMethod(javaMethod.getName(), javaMethod.getParameterTypes());
                         if (iFaceMethod != null) {
@@ -89,15 +96,21 @@ public class EJBRequestDispatcherProvider implements ResourceMethodDispatchProvi
                         }
                     } catch (NoSuchMethodException ex) {
                     } catch (SecurityException ex) {
-                        Logger.getLogger(EJBRequestDispatcherProvider.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(EJBMethodDispatchProvider.class.getName()).log(Level.SEVERE, null, ex);
                     }
             }
+
+            return null;
         }
 
-        return null;
+        return delegateDispatchProvider.create(abstractResourceMethod);
     }
 
-    private List<Class> remoteAndLocalIfaces(final Class<?> resourceClass) {
+    private boolean isSessionBean(AbstractResource ar) {
+        return ar.isAnnotationPresent(Stateless.class) || ar.isAnnotationPresent(Stateful.class);
+    }
+
+    private List<Class> getRemoteAndLocalIfaces(final Class<?> resourceClass) {
         final List<Class> allLocalOrRemoteIfaces = new LinkedList<Class>();
         if (resourceClass.isAnnotationPresent(Remote.class)) {
             allLocalOrRemoteIfaces.addAll(Arrays.asList(resourceClass.getAnnotation(Remote.class).value()));
@@ -114,16 +127,15 @@ public class EJBRequestDispatcherProvider implements ResourceMethodDispatchProvi
     }
 
     private RequestDispatcher createDispatcher(AbstractResourceMethod abstractResourceMethod, final Method iFaceMethod) {
-        return rdFactory.getDispatcher(abstractResourceMethod, new JavaMethodInvoker() {
+
+        JavaMethodInvoker ejbMethodInvoker = new JavaMethodInvoker() {
 
             @Override
             public Object invoke(Method m, Object o, Object... parameters) throws InvocationTargetException, IllegalAccessException {
                 return iFaceMethod.invoke(o, parameters);
             }
-        });
-    }
+        };
 
-    private boolean isSessionBean(AbstractResource ar) {
-        return ar.isAnnotationPresent(Stateless.class) || ar.isAnnotationPresent(Stateful.class);
+        return customInvokerDispatchProvider.create(abstractResourceMethod, ejbMethodInvoker);
     }
 }

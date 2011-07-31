@@ -38,14 +38,16 @@
  * holder.
  */
 
-package com.sun.jersey.spi.container;
+package com.sun.jersey.server.impl.application;
 
-import com.sun.jersey.impl.ImplMessages;
 import com.sun.jersey.api.model.AbstractResourceMethod;
 import com.sun.jersey.core.spi.component.ProviderServices;
-import com.sun.jersey.server.impl.application.ResourceMethodDispatcherFactory;
+import com.sun.jersey.impl.ImplMessages;
+import com.sun.jersey.spi.container.JavaMethodInvoker;
+import com.sun.jersey.spi.container.ResourceMethodCustomInvokerDispatchProvider;
 import com.sun.jersey.spi.dispatch.RequestDispatcher;
 import com.sun.jersey.spi.inject.Errors;
+
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -54,27 +56,31 @@ import java.util.logging.Logger;
  *
  * @author Jakub.Podlesak@Oracle.com
  */
-public class ResourceMethodCustomInvokerDispatchFactory {
+public class ResourceMethodCustomInvokerDispatcherFactory implements ResourceMethodCustomInvokerDispatchProvider {
 
-    private static final Logger LOGGER = Logger.getLogger(ResourceMethodDispatcherFactory.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ResourceMethodCustomInvokerDispatcherFactory.class.getName());
 
-    final Set<ResourceMethodCustomInvokerDispatchProvider> customInvokerDispatchProviders;
+    private final Set<ResourceMethodCustomInvokerDispatchProvider> customInvokerDispatchProviders;
 
-    public ResourceMethodCustomInvokerDispatchFactory(ProviderServices providerServices) {
+    private ResourceMethodCustomInvokerDispatcherFactory(ProviderServices providerServices) {
         customInvokerDispatchProviders = providerServices.getProvidersAndServices(ResourceMethodCustomInvokerDispatchProvider.class);
     }
 
+    public static ResourceMethodCustomInvokerDispatchProvider create(ProviderServices providerServices) {
+        return new ResourceMethodCustomInvokerDispatcherFactory(providerServices);
+    }
+
     // this is to address EJB integration issues in WLS/GF:
-    public RequestDispatcher getDispatcher(AbstractResourceMethod abstractResourceMethod, JavaMethodInvoker invoker) {
+    @Override
+    public RequestDispatcher create(AbstractResourceMethod abstractResourceMethod, JavaMethodInvoker invoker) {
 
         if (invoker == null) {
             return null;
         }
+
         // Mark the errors so it is possible to reset
         Errors.mark();
-
         for (ResourceMethodCustomInvokerDispatchProvider rmdp : customInvokerDispatchProviders) {
-
             try {
                 RequestDispatcher d = rmdp.create(abstractResourceMethod, invoker);
                 if (d != null) {

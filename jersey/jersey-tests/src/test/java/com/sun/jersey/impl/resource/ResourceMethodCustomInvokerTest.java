@@ -37,16 +37,18 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-package com.sun.jersey.impl.inject;
+package com.sun.jersey.impl.resource;
 
 import com.sun.jersey.api.model.AbstractResourceMethod;
 import com.sun.jersey.impl.AbstractResourceTester;
-import com.sun.jersey.spi.container.ResourceMethodCustomInvokerDispatchFactory;
-import com.sun.jersey.spi.container.ResourceMethodDispatchProvider;
 import com.sun.jersey.spi.container.JavaMethodInvoker;
+import com.sun.jersey.spi.container.ResourceMethodCustomInvokerDispatchProvider;
+import com.sun.jersey.spi.container.ResourceMethodDispatchProvider;
 import com.sun.jersey.spi.dispatch.RequestDispatcher;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
@@ -88,7 +90,7 @@ public class ResourceMethodCustomInvokerTest extends AbstractResourceTester {
     public static class MyDispatchProvider implements
             ResourceMethodDispatchProvider {
 
-        @Context ResourceMethodCustomInvokerDispatchFactory rmcidFactory;
+        @Context ResourceMethodCustomInvokerDispatchProvider dispatchProvider;
 
         static class MyJavaMethodInvoker implements JavaMethodInvoker {
 
@@ -101,7 +103,7 @@ public class ResourceMethodCustomInvokerTest extends AbstractResourceTester {
         @Override
         public RequestDispatcher create(AbstractResourceMethod abstractResourceMethod) {
             if (isTheMethodOurs(abstractResourceMethod)) {
-                return rmcidFactory.getDispatcher(abstractResourceMethod, new MyJavaMethodInvoker());
+                return dispatchProvider.create(abstractResourceMethod, new MyJavaMethodInvoker());
             }
             return null;
         }

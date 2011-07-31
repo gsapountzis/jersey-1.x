@@ -245,6 +245,8 @@ public final class WebApplicationImpl implements WebApplication {
 
     private ResourceMethodDispatchProvider dispatcherFactory;
 
+    private ResourceMethodCustomInvokerDispatchProvider customInvokerDispatcherFactory;
+
     private ResourceContext resourceContext;
 
     private Set<AbstractResource> abstractRootResources;
@@ -881,9 +883,6 @@ public final class WebApplicationImpl implements WebApplication {
         injectableFactory.add(new ContextInjectableProvider<ProviderServices>(
                 ProviderServices.class, providerServices));
 
-        injectableFactory.add(new ContextInjectableProvider<ResourceMethodCustomInvokerDispatchFactory>(
-                ResourceMethodCustomInvokerDispatchFactory.class, new ResourceMethodCustomInvokerDispatchFactory(providerServices)));
-
         // Add injectable provider for @ParentRef
         injectableFactory.add(
                 new InjectableProvider<ParentRef, Type>() {
@@ -1233,6 +1232,12 @@ public final class WebApplicationImpl implements WebApplication {
         filterFactory = new FilterFactory(providerServices);
 
         // Initiate resource method dispatchers
+        customInvokerDispatcherFactory = ResourceMethodCustomInvokerDispatcherFactory.create(providerServices);
+
+        // Allow custom-invoker dispatch providers to get injected to regular dispatch providers and adapters
+        injectableFactory.add(new ContextInjectableProvider<ResourceMethodCustomInvokerDispatchProvider>(
+                ResourceMethodCustomInvokerDispatchProvider.class, customInvokerDispatcherFactory));
+
         dispatcherFactory = ResourceMethodDispatcherFactory.create(providerServices);
 
         dispatchingListener = new DispatchingListenerProxy();
