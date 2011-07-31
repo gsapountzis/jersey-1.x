@@ -71,7 +71,7 @@ import javax.ws.rs.core.Response;
  * 
  * @author Paul.Sandoz@Sun.Com
  */
-public abstract class AbstractResourceMethodDispatchProvider implements ResourceMethodDispatchProvider, ResourceMethodCustomInvokerDispatchProvider {
+public abstract class AbstractJavaMethodDispatchProvider implements ResourceMethodDispatchProvider, ResourceMethodCustomInvokerDispatchProvider {
 
     @Override
     public RequestDispatcher create(AbstractResourceMethod abstractResourceMethod) {

@@ -65,7 +65,7 @@ import javax.ws.rs.core.MultivaluedMap;
  *
  * @author Paul.Sandoz@Sun.Com
  */
-public class FormDispatchProvider extends AbstractResourceMethodDispatchProvider {
+public class FormDispatchProvider extends AbstractJavaMethodDispatchProvider {
     public static final String FORM_PROPERTY = "com.sun.jersey.api.representation.form";
     
     @Override

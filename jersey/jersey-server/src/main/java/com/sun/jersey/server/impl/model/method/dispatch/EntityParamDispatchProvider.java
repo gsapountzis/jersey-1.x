@@ -57,7 +57,7 @@ import java.util.List;
  *
  * @author Paul.Sandoz@Sun.Com
  */
-public class EntityParamDispatchProvider extends AbstractResourceMethodDispatchProvider {
+public class EntityParamDispatchProvider extends AbstractJavaMethodDispatchProvider {
                 
     @Override
     protected InjectableValuesProvider getInjectableValuesProvider(AbstractResourceMethod abstractResourceMethod) {

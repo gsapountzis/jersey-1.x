@@ -54,20 +54,22 @@ import com.sun.jersey.multipart.FormDataMultiPart;
 import com.sun.jersey.multipart.FormDataParam;
 import com.sun.jersey.server.impl.inject.AbstractHttpContextInjectable;
 import com.sun.jersey.server.impl.inject.InjectableValuesProvider;
-import com.sun.jersey.server.impl.model.method.dispatch.AbstractResourceMethodDispatchProvider;
-import com.sun.jersey.spi.container.JavaMethodInvoker;
-import com.sun.jersey.spi.container.JavaMethodInvokerFactory;
+import com.sun.jersey.server.impl.model.method.dispatch.AbstractJavaMethodDispatchProvider;
 import com.sun.jersey.server.impl.model.parameter.multivalued.MultivaluedParameterExtractor;
 import com.sun.jersey.server.impl.model.parameter.multivalued.MultivaluedParameterExtractorProvider;
 import com.sun.jersey.spi.MessageBodyWorkers;
+import com.sun.jersey.spi.container.JavaMethodInvoker;
+import com.sun.jersey.spi.container.JavaMethodInvokerFactory;
 import com.sun.jersey.spi.dispatch.RequestDispatcher;
 import com.sun.jersey.spi.inject.Injectable;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -77,7 +79,7 @@ import javax.ws.rs.ext.MessageBodyReader;
  * <p>Support <code>@FormDataParam</code> injection into method parameters from
  * a {@link FormDataMultiPart} entity.</p>
  */
-public class FormDataMultiPartDispatchProvider extends AbstractResourceMethodDispatchProvider {
+public class FormDataMultiPartDispatchProvider extends AbstractJavaMethodDispatchProvider {
     private static final String FORM_MULTIPART_PROPERTY = "com.sun.jersey.api.representation.form.multipart";
 
     @Context
