@@ -56,7 +56,7 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class VoidVoidDispatchProvider implements ResourceMethodDispatchProvider, ResourceMethodCustomInvokerDispatchProvider {
     
-    public static final class VoidVoidMethodInvoker extends ResourceJavaMethodDispatcher {
+    public static final class VoidVoidMethodInvoker extends AbstractJavaMethodDispatcher {
         public VoidVoidMethodInvoker(AbstractResourceMethod abstractResourceMethod) {
             this(abstractResourceMethod, JavaMethodInvokerFactory.getDefault());
         }

@@ -135,7 +135,7 @@ public abstract class AbstractResourceMethodDispatchProvider implements Resource
             AbstractResourceMethod abstractResourceMethod);
 
 
-    private static abstract class EntityParamInInvoker extends ResourceJavaMethodDispatcher {
+    private static abstract class EntityParamInInvoker extends AbstractJavaMethodDispatcher {
         private final InjectableValuesProvider pp;
 
         EntityParamInInvoker(AbstractResourceMethod abstractResourceMethod,

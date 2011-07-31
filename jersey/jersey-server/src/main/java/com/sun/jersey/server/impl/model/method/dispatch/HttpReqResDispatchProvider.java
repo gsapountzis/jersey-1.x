@@ -64,7 +64,7 @@ public class HttpReqResDispatchProvider implements ResourceMethodDispatchProvide
     @SuppressWarnings("unchecked")
 	private static final Class[] EXPECTED_METHOD_PARAMS = new Class[]{HttpRequestContext.class, HttpResponseContext.class};
 
-    static final class HttpReqResDispatcher extends ResourceJavaMethodDispatcher {
+    static final class HttpReqResDispatcher extends AbstractJavaMethodDispatcher {
         HttpReqResDispatcher(AbstractResourceMethod abstractResourceMethod) {
             this(abstractResourceMethod, JavaMethodInvokerFactory.getDefault());
         }

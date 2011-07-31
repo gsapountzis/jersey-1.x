@@ -54,7 +54,7 @@ import java.lang.reflect.Method;
  *
  * @author Paul.Sandoz@Sun.Com
  */
-public abstract class ResourceJavaMethodDispatcher implements RequestDispatcher {
+public abstract class AbstractJavaMethodDispatcher implements RequestDispatcher {
 
     protected final JavaMethodInvoker invoker;
 
@@ -62,7 +62,7 @@ public abstract class ResourceJavaMethodDispatcher implements RequestDispatcher 
     
     private final Annotation[] annotations;
     
-    public ResourceJavaMethodDispatcher(AbstractResourceMethod abstractResourceMethod, JavaMethodInvoker invoker) {
+    public AbstractJavaMethodDispatcher(AbstractResourceMethod abstractResourceMethod, JavaMethodInvoker invoker) {
         this.method = abstractResourceMethod.getMethod();
         this.annotations = abstractResourceMethod.getAnnotations();
         this.invoker = invoker;
