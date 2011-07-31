@@ -89,15 +89,15 @@ public class EJBMethodDispatchProvider implements ResourceMethodDispatchProvider
             final Method javaMethod = abstractResourceMethod.getMethod();
 
             for (Class iFace: getRemoteAndLocalIfaces(resourceClass)) {
-                    try {
-                        final Method iFaceMethod = iFace.getDeclaredMethod(javaMethod.getName(), javaMethod.getParameterTypes());
-                        if (iFaceMethod != null) {
-                            return createDispatcher(abstractResourceMethod, iFaceMethod);
-                        }
-                    } catch (NoSuchMethodException ex) {
-                    } catch (SecurityException ex) {
-                        Logger.getLogger(EJBMethodDispatchProvider.class.getName()).log(Level.SEVERE, null, ex);
+                try {
+                    final Method iFaceMethod = iFace.getDeclaredMethod(javaMethod.getName(), javaMethod.getParameterTypes());
+                    if (iFaceMethod != null) {
+                        return createDispatcher(abstractResourceMethod, iFaceMethod);
                     }
+                } catch (NoSuchMethodException ex) {
+                } catch (SecurityException ex) {
+                    Logger.getLogger(EJBMethodDispatchProvider.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
 
             return null;
