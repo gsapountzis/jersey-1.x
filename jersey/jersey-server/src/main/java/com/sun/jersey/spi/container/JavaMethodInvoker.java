@@ -48,5 +48,5 @@ import java.lang.reflect.Method;
  */
 public interface JavaMethodInvoker {
 
-    public Object invoke(Method m, Object o, Object... parameters) throws InvocationTargetException, IllegalAccessException;
+    Object invoke(Method m, Object o, Object... parameters) throws InvocationTargetException, IllegalAccessException;
 }
