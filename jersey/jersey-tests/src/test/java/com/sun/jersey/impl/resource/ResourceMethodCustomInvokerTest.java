@@ -43,6 +43,7 @@ import com.sun.jersey.api.model.AbstractResourceMethod;
 import com.sun.jersey.impl.AbstractResourceTester;
 import com.sun.jersey.spi.container.JavaMethodInvoker;
 import com.sun.jersey.spi.container.ResourceMethodCustomInvokerDispatchProvider;
+import com.sun.jersey.spi.container.ResourceMethodDispatchAdapter;
 import com.sun.jersey.spi.container.ResourceMethodDispatchProvider;
 import com.sun.jersey.spi.dispatch.RequestDispatcher;
 
@@ -137,4 +138,77 @@ public class ResourceMethodCustomInvokerTest extends AbstractResourceTester {
         s = resource("/iocfullymanagedresource").get(String.class);
         assertTrue(s.contains("Dispatch"));
     }
+
+
+    private static class PrivateDispatchProvider implements ResourceMethodDispatchProvider {
+
+        private final ResourceMethodCustomInvokerDispatchProvider ciProvider;
+
+        private final ResourceMethodDispatchProvider provider;
+
+        public PrivateDispatchProvider(
+                ResourceMethodDispatchProvider provider,
+                ResourceMethodCustomInvokerDispatchProvider ciProvider) {
+            this.provider = provider;
+            this.ciProvider = ciProvider;
+        }
+
+        static class MyJavaMethodInvoker implements JavaMethodInvoker {
+
+            @Override
+            public Object invoke(Method m, Object o, Object... parameters) throws InvocationTargetException, IllegalAccessException {
+                return "Adapt";
+            }
+        }
+
+        @Override
+        public RequestDispatcher create(AbstractResourceMethod abstractResourceMethod) {
+
+            if (isTheMethodOurs(abstractResourceMethod)) {
+                return ciProvider.create(abstractResourceMethod, new MyJavaMethodInvoker());
+            }
+
+            return provider.create(abstractResourceMethod);
+        }
+
+        private boolean isTheMethodOurs(AbstractResourceMethod arm) {
+            try {
+                if (arm.getMethod().equals(IoCFullyManagedResource.class.getDeclaredMethod("get"))) {
+                    return true;
+                }
+            } catch (Exception ex) {
+            }
+            return false;
+        }
+    }
+
+    public static class MyDispatchAdapter implements ResourceMethodDispatchAdapter {
+
+        @Context ResourceMethodCustomInvokerDispatchProvider ciProvider;
+
+        @Override
+        public ResourceMethodDispatchProvider adapt(ResourceMethodDispatchProvider provider) {
+            return new PrivateDispatchProvider(provider, ciProvider);
+        }
+
+    }
+
+    public void testAdapt() throws Exception {
+        initiateWebApplication(MyDispatchAdapter.class,
+                IoCFullyManagedResource.class, OrdinaryResource.class);
+
+        String s = resource("/ordinaryresource").get(String.class);
+        assertEquals(s, "ordinary");
+        //System.out.println(String.format("result: %s", s));
+
+        s = resource("/iocfullymanagedresource").get(String.class);
+        assertTrue(s.contains("Adapt"));
+
+        s = resource("/ordinaryresource").get(String.class);
+        assertEquals(s, "ordinary");
+
+        s = resource("/iocfullymanagedresource").get(String.class);
+        assertTrue(s.contains("Adapt"));
+    }
+
 }
