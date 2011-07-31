@@ -40,7 +40,6 @@
 
 package com.sun.jersey.server.impl.model.method.dispatch;
 
-import com.sun.jersey.spi.container.JavaMethodInvokerFactory;
 import com.sun.jersey.spi.container.JavaMethodInvoker;
 import com.sun.jersey.spi.container.ResourceMethodCustomInvokerDispatchProvider;
 import com.sun.jersey.spi.container.ResourceMethodDispatchProvider;
@@ -75,7 +74,7 @@ public abstract class AbstractJavaMethodDispatchProvider implements ResourceMeth
 
     @Override
     public RequestDispatcher create(AbstractResourceMethod abstractResourceMethod) {
-        return this.create(abstractResourceMethod, JavaMethodInvokerFactory.getDefault());
+        return this.create(abstractResourceMethod, DefaultJavaMethodInvoker.getInstance());
     }
 
     @Override
@@ -140,7 +139,7 @@ public abstract class AbstractJavaMethodDispatchProvider implements ResourceMeth
 
         EntityParamInInvoker(AbstractResourceMethod abstractResourceMethod,
                 InjectableValuesProvider pp) {
-            this(abstractResourceMethod, pp, JavaMethodInvokerFactory.getDefault());
+            this(abstractResourceMethod, pp, DefaultJavaMethodInvoker.getInstance());
         }
 
         EntityParamInInvoker(AbstractResourceMethod abstractResourceMethod,

@@ -40,7 +40,6 @@
 
 package com.sun.jersey.server.impl.model.method.dispatch;
 
-import com.sun.jersey.spi.container.JavaMethodInvokerFactory;
 import com.sun.jersey.spi.container.JavaMethodInvoker;
 import com.sun.jersey.spi.container.ResourceMethodCustomInvokerDispatchProvider;
 import com.sun.jersey.spi.container.ResourceMethodDispatchProvider;
@@ -66,7 +65,7 @@ public class HttpReqResDispatchProvider implements ResourceMethodDispatchProvide
 
     static final class HttpReqResDispatcher extends AbstractJavaMethodDispatcher {
         HttpReqResDispatcher(AbstractResourceMethod abstractResourceMethod) {
-            this(abstractResourceMethod, JavaMethodInvokerFactory.getDefault());
+            this(abstractResourceMethod, DefaultJavaMethodInvoker.getInstance());
         }
 
         HttpReqResDispatcher(AbstractResourceMethod abstractResourceMethod, JavaMethodInvoker invoker) {
@@ -82,7 +81,7 @@ public class HttpReqResDispatchProvider implements ResourceMethodDispatchProvide
     
     @Override
     public RequestDispatcher create(AbstractResourceMethod abstractResourceMethod) {
-        return this.create(abstractResourceMethod, JavaMethodInvokerFactory.getDefault());
+        return this.create(abstractResourceMethod, DefaultJavaMethodInvoker.getInstance());
     }
 
 

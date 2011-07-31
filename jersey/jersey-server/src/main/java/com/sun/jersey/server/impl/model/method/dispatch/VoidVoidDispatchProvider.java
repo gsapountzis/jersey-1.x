@@ -40,7 +40,6 @@
 
 package com.sun.jersey.server.impl.model.method.dispatch;
 
-import com.sun.jersey.spi.container.JavaMethodInvokerFactory;
 import com.sun.jersey.spi.container.JavaMethodInvoker;
 import com.sun.jersey.spi.container.ResourceMethodCustomInvokerDispatchProvider;
 import com.sun.jersey.spi.container.ResourceMethodDispatchProvider;
@@ -58,7 +57,7 @@ public class VoidVoidDispatchProvider implements ResourceMethodDispatchProvider,
     
     public static final class VoidVoidMethodInvoker extends AbstractJavaMethodDispatcher {
         public VoidVoidMethodInvoker(AbstractResourceMethod abstractResourceMethod) {
-            this(abstractResourceMethod, JavaMethodInvokerFactory.getDefault());
+            this(abstractResourceMethod, DefaultJavaMethodInvoker.getInstance());
         }
 
         public VoidVoidMethodInvoker(AbstractResourceMethod abstractResourceMethod, JavaMethodInvoker invoker) {
@@ -75,7 +74,7 @@ public class VoidVoidDispatchProvider implements ResourceMethodDispatchProvider,
 
     @Override
     public RequestDispatcher create(AbstractResourceMethod abstractResourceMethod) {
-        return this.create(abstractResourceMethod, JavaMethodInvokerFactory.getDefault());
+        return this.create(abstractResourceMethod, DefaultJavaMethodInvoker.getInstance());
     }
 
     @Override

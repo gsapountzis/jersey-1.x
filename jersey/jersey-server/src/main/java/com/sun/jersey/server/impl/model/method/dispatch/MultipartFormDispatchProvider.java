@@ -40,7 +40,6 @@
 
 package com.sun.jersey.server.impl.model.method.dispatch;
 
-import com.sun.jersey.spi.container.JavaMethodInvokerFactory;
 import com.sun.jersey.spi.container.JavaMethodInvoker;
 import com.sun.jersey.api.model.AbstractResourceMethod;
 import com.sun.jersey.api.model.Parameter;
@@ -63,7 +62,7 @@ public class MultipartFormDispatchProvider extends FormDispatchProvider {
 
     @Override
     public RequestDispatcher create(AbstractResourceMethod method) {
-        return this.create(method, JavaMethodInvokerFactory.getDefault());
+        return this.create(method, DefaultJavaMethodInvoker.getInstance());
     }
 
     @Override

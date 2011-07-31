@@ -38,7 +38,9 @@
  * holder.
  */
 
-package com.sun.jersey.spi.container;
+package com.sun.jersey.server.impl.model.method.dispatch;
+
+import com.sun.jersey.spi.container.JavaMethodInvoker;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -47,18 +49,19 @@ import java.lang.reflect.Method;
  *
  * @author japod
  */
-public final class JavaMethodInvokerFactory {
+public final class DefaultJavaMethodInvoker implements JavaMethodInvoker {
+
+    private static final JavaMethodInvoker instance = new DefaultJavaMethodInvoker();
     
-    public static JavaMethodInvoker getDefault() {
-        return defaultInstance;
+    public static JavaMethodInvoker getInstance() {
+        return instance;
     }
 
-    static JavaMethodInvoker defaultInstance = new JavaMethodInvoker() {
+    private DefaultJavaMethodInvoker() { }
 
-        @Override
-        public Object invoke(Method m, Object o, Object... parameters) throws InvocationTargetException, IllegalAccessException {
-            return m.invoke(o, parameters);
-        }
-    };
+    @Override
+    public Object invoke(Method m, Object o, Object... parameters) throws InvocationTargetException, IllegalAccessException {
+        return m.invoke(o, parameters);
+    }
 
 }

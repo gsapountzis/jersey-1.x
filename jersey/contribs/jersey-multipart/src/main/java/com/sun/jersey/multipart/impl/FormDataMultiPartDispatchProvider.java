@@ -55,11 +55,11 @@ import com.sun.jersey.multipart.FormDataParam;
 import com.sun.jersey.server.impl.inject.AbstractHttpContextInjectable;
 import com.sun.jersey.server.impl.inject.InjectableValuesProvider;
 import com.sun.jersey.server.impl.model.method.dispatch.AbstractJavaMethodDispatchProvider;
+import com.sun.jersey.server.impl.model.method.dispatch.DefaultJavaMethodInvoker;
 import com.sun.jersey.server.impl.model.parameter.multivalued.MultivaluedParameterExtractor;
 import com.sun.jersey.server.impl.model.parameter.multivalued.MultivaluedParameterExtractorProvider;
 import com.sun.jersey.spi.MessageBodyWorkers;
 import com.sun.jersey.spi.container.JavaMethodInvoker;
-import com.sun.jersey.spi.container.JavaMethodInvokerFactory;
 import com.sun.jersey.spi.dispatch.RequestDispatcher;
 import com.sun.jersey.spi.inject.Injectable;
 
@@ -91,7 +91,7 @@ public class FormDataMultiPartDispatchProvider extends AbstractJavaMethodDispatc
 
     @Override
     public RequestDispatcher create(AbstractResourceMethod abstractResourceMethod) {
-        return this.create(abstractResourceMethod, JavaMethodInvokerFactory.getDefault());
+        return this.create(abstractResourceMethod, DefaultJavaMethodInvoker.getInstance());
     }
 
     @Override
