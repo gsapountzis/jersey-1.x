@@ -41,11 +41,12 @@ package com.sun.jersey.server.impl.model.parameter.multivalued;
 
 import com.sun.jersey.api.container.ContainerException;
 import com.sun.jersey.api.model.Parameter;
-import com.sun.jersey.impl.ImplMessages;
 import com.sun.jersey.core.reflection.ReflectionHelper;
 import com.sun.jersey.core.reflection.ReflectionHelper.TypeClassPair;
+import com.sun.jersey.impl.ImplMessages;
 import com.sun.jersey.spi.StringReader;
 import com.sun.jersey.spi.StringReaderWorkers;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -59,16 +60,16 @@ import java.util.SortedSet;
  */
 public final class MultivaluedParameterExtractorFactory implements MultivaluedParameterExtractorProvider {
 
-    private final StringReaderWorkers w;
+    private final StringReaderWorkers srw;
 
-    public MultivaluedParameterExtractorFactory(StringReaderWorkers w) {
-        this.w = w;
+    public MultivaluedParameterExtractorFactory(StringReaderWorkers srw) {
+        this.srw = srw;
     }
 
     @Override
     public MultivaluedParameterExtractor getWithoutDefaultValue(Parameter p) {
         return process(
-                w,
+                srw,
                 null,
                 p.getParameterClass(),
                 p.getParameterType(),
@@ -79,7 +80,7 @@ public final class MultivaluedParameterExtractorFactory implements MultivaluedPa
     @Override
     public MultivaluedParameterExtractor get(Parameter p) {
         return process(
-                w,
+                srw,
                 p.getDefaultValue(),
                 p.getParameterClass(),
                 p.getParameterType(),
@@ -88,65 +89,70 @@ public final class MultivaluedParameterExtractorFactory implements MultivaluedPa
     }
 
     private MultivaluedParameterExtractor process(
-            StringReaderWorkers w,
+            StringReaderWorkers srw,
             String defaultValue,
-            Class<?> parameter,
+            Class<?> parameterClass,
             Type parameterType,
             Annotation[] annotations,
             String parameterName) {
 
-        if (parameter == List.class ||
-                parameter == Set.class ||
-                parameter == SortedSet.class) {
-            // Get the generic type of the list
-            // If none default to String
-            final TypeClassPair tcp = ReflectionHelper.getTypeArgumentAndClass(parameterType);
-            if (tcp == null || tcp.c == String.class) {
-                return CollectionStringExtractor.getInstance(
-                        parameter, parameterName, defaultValue);
-            } else {
-                final StringReader sr = w.getStringReader(tcp.c, tcp.t, annotations);
-                if (sr == null)
-                    return null;
+        if (parameterClass.isPrimitive()) {
 
-                try {
-                    return CollectionStringReaderExtractor.getInstance(
-                            parameter, sr, parameterName, defaultValue);
-                } catch (Exception e) {
-                    throw new ContainerException("Could not process parameter type " + parameter, e);
-                }
-            }
-        } else if (parameter == String.class) {
-            return new StringExtractor(parameterName, defaultValue);
-        } else if (parameter.isPrimitive()) {
             // Convert primitive to wrapper class
-            parameter = PrimitiveMapper.primitiveToClassMap.get(parameter);
-            if (parameter == null) {
+            parameterClass = PrimitiveMapper.primitiveToClassMap.get(parameterClass);
+            if (parameterClass == null) {
                 // Primitive type not supported
                 return null;
             }
 
-            // Check for static valueOf(String )
-            Method valueOf = ReflectionHelper.getValueOfStringMethod(parameter);
+            // Check for static valueOf(String)
+            Method valueOf = ReflectionHelper.getValueOfStringMethod(parameterClass);
             if (valueOf != null) {
                 try {
-                    Object defaultDefaultValue = PrimitiveMapper.primitiveToDefaultValueMap.get(parameter);
-                    return new PrimitiveValueOfExtractor(valueOf, parameterName,
-                            defaultValue, defaultDefaultValue);
+                    Object defaultDefaultValue = PrimitiveMapper.primitiveToDefaultValueMap.get(parameterClass);
+                    return new PrimitiveValueOfExtractor(valueOf, parameterName, defaultValue, defaultDefaultValue);
                 } catch (Exception e) {
                     throw new ContainerException(ImplMessages.DEFAULT_COULD_NOT_PROCESS_METHOD(defaultValue, valueOf));
                 }
             }
+        }
+        else if (parameterClass == List.class ||
+                 parameterClass == Set.class ||
+                 parameterClass == SortedSet.class) {
 
-        } else {
-            final StringReader sr = w.getStringReader(parameter, parameterType, annotations);
-            if (sr == null)
-                return null;
+            // Get the generic type of the list, if none default to String
+            final TypeClassPair tcp = ReflectionHelper.getTypeArgumentAndClass(parameterType);
 
-            try {
-                return new StringReaderExtractor(sr, parameterName, defaultValue);
-            } catch (Exception e) {
-                throw new ContainerException("Could not process parameter type " + parameter, e);
+            if (tcp == null || tcp.c == String.class) {
+                return CollectionStringExtractor.getInstance(parameterClass, parameterName, defaultValue);
+            }
+            else {
+                final StringReader sr = srw.getStringReader(tcp.c, tcp.t, annotations);
+                if (sr == null)
+                    return null;
+
+                try {
+                    return CollectionStringReaderExtractor.getInstance(parameterClass, sr, parameterName, defaultValue);
+                } catch (Exception e) {
+                    throw new ContainerException("Could not process parameter type " + parameterClass, e);
+                }
+            }
+        }
+        else {
+
+            if (parameterClass == String.class) {
+                return new StringExtractor(parameterName, defaultValue);
+            }
+            else {
+                final StringReader sr = srw.getStringReader(parameterClass, parameterType, annotations);
+                if (sr == null)
+                    return null;
+
+                try {
+                    return new StringReaderExtractor(sr, parameterName, defaultValue);
+                } catch (Exception e) {
+                    throw new ContainerException("Could not process parameter type " + parameterClass, e);
+                }
             }
         }
 
