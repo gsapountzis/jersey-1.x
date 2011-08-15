@@ -39,9 +39,6 @@
  */
 package com.sun.jersey.server.impl.modelapi.annotation;
 
-import com.sun.jersey.core.reflection.AnnotatedMethod;
-import com.sun.jersey.core.reflection.MethodList;
-import com.sun.jersey.core.header.MediaTypes;
 import com.sun.jersey.api.model.AbstractField;
 import com.sun.jersey.api.model.AbstractResource;
 import com.sun.jersey.api.model.AbstractResourceConstructor;
@@ -53,22 +50,12 @@ import com.sun.jersey.api.model.Parameter;
 import com.sun.jersey.api.model.Parameter.Source;
 import com.sun.jersey.api.model.Parameterized;
 import com.sun.jersey.api.model.PathValue;
+import com.sun.jersey.core.header.MediaTypes;
+import com.sun.jersey.core.reflection.AnnotatedMethod;
+import com.sun.jersey.core.reflection.MethodList;
 import com.sun.jersey.core.reflection.ReflectionHelper;
 import com.sun.jersey.impl.ImplMessages;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.WeakHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.CookieParam;
 import javax.ws.rs.DefaultValue;
@@ -82,6 +69,18 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.WeakHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -311,7 +310,7 @@ public class IntrospectionModeller {
     private static ReflectionHelper.ClassTypePair getGenericReturnType(
             Class concreteClass,
             Method m) {
-        return getGenericType(concreteClass, m.getDeclaringClass(), m.getReturnType(), m.getGenericReturnType());
+        return ReflectionHelper.getGenericType(concreteClass, m.getDeclaringClass(), m.getReturnType(), m.getGenericReturnType());
     }
     
     private static void workOutSubResourceMethodsList(
@@ -601,7 +600,7 @@ public class IntrospectionModeller {
             paramSource = Parameter.Source.ENTITY;
         }
 
-        ReflectionHelper.ClassTypePair ct = getGenericType(concreteClass, declaringClass, paramClass, paramType);
+        ReflectionHelper.ClassTypePair ct = ReflectionHelper.getGenericType(concreteClass, declaringClass, paramClass, paramType);
         paramType = ct.t;
         paramClass = ct.c;
 
@@ -621,66 +620,5 @@ public class IntrospectionModeller {
         } catch (Exception ex) {
         }
         return null;
-    }
-
-    private static ReflectionHelper.ClassTypePair getGenericType(
-            final Class concreteClass,
-            final Class declaringClass,
-            final Class c,
-            final Type t) {
-        if (t instanceof TypeVariable) {
-            ReflectionHelper.ClassTypePair ct = ReflectionHelper.resolveTypeVariable(
-                    concreteClass,
-                    declaringClass,
-                    (TypeVariable)t);
-
-            if (ct != null) {
-                return ct;
-            }
-        } else if (t instanceof ParameterizedType) {
-            final ParameterizedType pt = (ParameterizedType)t;
-            final Type[] ptts = pt.getActualTypeArguments();
-            boolean modified =  false;
-            for (int i = 0; i < ptts.length; i++) {
-                ReflectionHelper.ClassTypePair ct =
-                        getGenericType(concreteClass, declaringClass, (Class)pt.getRawType(), ptts[i]);
-                if (ct.t != ptts[i]) {
-                    ptts[i] = ct.t;
-                    modified = true;
-                }
-            }
-            if (modified) {
-                ParameterizedType rpt = new ParameterizedType() {
-                    @Override
-                    public Type[] getActualTypeArguments() {
-                        return ptts.clone();
-                    }
-
-                    @Override
-                    public Type getRawType() {
-                        return pt.getRawType();
-                    }
-
-                    @Override
-                    public Type getOwnerType() {
-                        return pt.getOwnerType();
-                    }
-                };
-                return new ReflectionHelper.ClassTypePair((Class)pt.getRawType(), rpt);
-            }
-        } else if (t instanceof GenericArrayType) {
-            GenericArrayType gat = (GenericArrayType)t;
-            final ReflectionHelper.ClassTypePair ct =
-                    getGenericType(concreteClass, declaringClass, null, gat.getGenericComponentType());
-            if (gat.getGenericComponentType() != ct.t) {
-                try {
-                    Class ac = ReflectionHelper.getArrayClass(ct.c);
-                    return new ReflectionHelper.ClassTypePair(ac, ac);
-                } catch (Exception e) {
-                }
-            }
-        }
-
-        return new ReflectionHelper.ClassTypePair(c, t);
     }
 }

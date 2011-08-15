@@ -687,6 +687,67 @@ public class ReflectionHelper {
         }
     }
 
+    public static ReflectionHelper.ClassTypePair getGenericType(
+            final Class concreteClass,
+            final Class declaringClass,
+            final Class c,
+            final Type t) {
+        if (t instanceof TypeVariable) {
+            ReflectionHelper.ClassTypePair ct = ReflectionHelper.resolveTypeVariable(
+                    concreteClass,
+                    declaringClass,
+                    (TypeVariable)t);
+
+            if (ct != null) {
+                return ct;
+            }
+        } else if (t instanceof ParameterizedType) {
+            final ParameterizedType pt = (ParameterizedType)t;
+            final Type[] ptts = pt.getActualTypeArguments();
+            boolean modified =  false;
+            for (int i = 0; i < ptts.length; i++) {
+                ReflectionHelper.ClassTypePair ct =
+                        getGenericType(concreteClass, declaringClass, (Class)pt.getRawType(), ptts[i]);
+                if (ct.t != ptts[i]) {
+                    ptts[i] = ct.t;
+                    modified = true;
+                }
+            }
+            if (modified) {
+                ParameterizedType rpt = new ParameterizedType() {
+                    @Override
+                    public Type[] getActualTypeArguments() {
+                        return ptts.clone();
+                    }
+
+                    @Override
+                    public Type getRawType() {
+                        return pt.getRawType();
+                    }
+
+                    @Override
+                    public Type getOwnerType() {
+                        return pt.getOwnerType();
+                    }
+                };
+                return new ReflectionHelper.ClassTypePair((Class)pt.getRawType(), rpt);
+            }
+        } else if (t instanceof GenericArrayType) {
+            GenericArrayType gat = (GenericArrayType)t;
+            final ReflectionHelper.ClassTypePair ct =
+                    getGenericType(concreteClass, declaringClass, null, gat.getGenericComponentType());
+            if (gat.getGenericComponentType() != ct.t) {
+                try {
+                    Class ac = ReflectionHelper.getArrayClass(ct.c);
+                    return new ReflectionHelper.ClassTypePair(ac, ac);
+                } catch (Exception e) {
+                }
+            }
+        }
+
+        return new ReflectionHelper.ClassTypePair(c, t);
+    }
+
     /**
      * Find a method on a class given an existing method.
      * <p>
