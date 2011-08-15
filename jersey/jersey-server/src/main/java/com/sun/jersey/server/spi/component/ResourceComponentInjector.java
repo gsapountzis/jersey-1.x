@@ -45,16 +45,16 @@ import com.sun.jersey.api.model.AbstractField;
 import com.sun.jersey.api.model.AbstractResource;
 import com.sun.jersey.api.model.AbstractSetterMethod;
 import com.sun.jersey.api.model.Parameter;
-import com.sun.jersey.server.impl.inject.AbstractHttpContextInjectable;
-import com.sun.jersey.spi.inject.Injectable;
+import com.sun.jersey.core.reflection.ReflectionHelper;
 import com.sun.jersey.core.spi.component.ComponentScope;
+import com.sun.jersey.server.impl.inject.AbstractHttpContextInjectable;
 import com.sun.jersey.server.impl.inject.ServerInjectableProviderContext;
-import com.sun.jersey.spi.inject.InjectableProviderContext.InjectableScopePair;
 import com.sun.jersey.spi.inject.Errors;
+import com.sun.jersey.spi.inject.Injectable;
+import com.sun.jersey.spi.inject.InjectableProviderContext.InjectableScopePair;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -114,7 +114,7 @@ public final class ResourceComponentInjector {
 
             InjectableScopePair isp = ipc.getInjectableiWithScope(af.getField(), p, s);
             if (isp != null) {
-                configureField(af.getField());
+                ReflectionHelper.setAccessibleField(af.getField());
                 if (s == ComponentScope.PerRequest && isp.cs != ComponentScope.Singleton) {
                     perRequest.put(af.getField(), isp.i);
                 } else {
@@ -143,18 +143,6 @@ public final class ResourceComponentInjector {
             perRequestFields[i] = e.getKey();
             perRequestFieldInjectables[i++] = AbstractHttpContextInjectable.transform(e.getValue());
         }        
-    }
-    
-    private void configureField(final Field f) {
-        if (!f.isAccessible()) {
-            AccessController.doPrivileged(new PrivilegedAction<Object>() {
-                @Override
-                public Object run() {
-                    f.setAccessible(true);
-                    return null;
-                }
-            });
-        }
     }
     
     private void processSetters(ServerInjectableProviderContext ipc, ComponentScope s,

@@ -261,6 +261,26 @@ public class ReflectionHelper {
     }
 
     /**
+     * Set a field to be accessible.
+     *
+     * @param f the field to be set as accessible
+     */
+    public static void setAccessibleField(final Field f) {
+        if (Modifier.isPublic(f.getModifiers()))
+            return;
+
+        AccessController.doPrivileged(new PrivilegedAction<Object>() {
+            @Override
+            public Object run() {
+                if (!f.isAccessible()) {
+                    f.setAccessible(true);
+                }
+                return null;
+            }
+        });
+    }
+
+    /**
      * Set a method to be accessible.
      *
      * @param m the method to be set as accessible

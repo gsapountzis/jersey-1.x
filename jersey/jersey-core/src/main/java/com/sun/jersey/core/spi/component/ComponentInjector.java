@@ -41,16 +41,18 @@ package com.sun.jersey.core.spi.component;
 
 import com.sun.jersey.core.reflection.AnnotatedMethod;
 import com.sun.jersey.core.reflection.MethodList;
+import com.sun.jersey.core.reflection.ReflectionHelper;
+import com.sun.jersey.spi.inject.Errors;
 import com.sun.jersey.spi.inject.Injectable;
 import com.sun.jersey.spi.inject.InjectableProviderContext;
-import com.sun.jersey.spi.inject.Errors;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Type;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
+
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.Path;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 
 /**
  * An injector to inject on a component.
@@ -130,7 +132,7 @@ public class ComponentInjector<T> {
                         ComponentScope.UNDEFINED_SINGLETON);
                 if (i != null) {
                     missingDependency = false;
-                    setMethodValue(t, m, i.getValue());
+                    setMethodValue(t, m.getMethod(), i.getValue());
                     break;
                 } else if (ipc.isAnnotationRegistered(a.annotationType(), gpt.getClass())) {
                     missingDependency = true;
@@ -145,25 +147,19 @@ public class ComponentInjector<T> {
         }
     }
     
-    private void setFieldValue(final Object resource, final Field f, final Object value) {
-        AccessController.doPrivileged(new PrivilegedAction<Object>() {
-            public Object run() {
-                try {
-                    if (!f.isAccessible()) {
-                        f.setAccessible(true);
-                    }
-                    f.set(resource, value);
-                    return null;
-                } catch (IllegalAccessException ex) {
-                    throw new RuntimeException(ex);
-                }
-            }
-        });
+    private void setFieldValue(final Object o, final Field f, final Object value) {
+        ReflectionHelper.setAccessibleField(f);
+
+        try {
+            f.set(o, value);
+        } catch (IllegalAccessException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
-    private void setMethodValue(Object o, AnnotatedMethod m, Object value) {
+    private void setMethodValue(Object o, Method m, Object value) {
         try {
-            m.getMethod().invoke(o, value);
+            m.invoke(o, value);
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
