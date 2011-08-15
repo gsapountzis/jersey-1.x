@@ -41,6 +41,7 @@
 package com.sun.jersey.core.reflection;
 
 import com.sun.jersey.impl.ImplMessages;
+
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -318,7 +319,7 @@ public class ReflectionHelper {
      *         type with a raw type that is not a class.
      */
     public static Class getGenericClass(Type parameterizedType) throws IllegalArgumentException {
-        final Type t = getTypeArgumentOfParameterizedType(parameterizedType);
+        final Type t = getTypeArgumentOfParameterizedType(parameterizedType, 0);
         if (t == null)
             return null;
 
@@ -341,27 +342,32 @@ public class ReflectionHelper {
     }
 
     public static TypeClassPair getTypeArgumentAndClass(Type parameterizedType) throws IllegalArgumentException {
-        final Type t = getTypeArgumentOfParameterizedType(parameterizedType);
+        return getTypeArgumentAndClass(parameterizedType, 0);
+    }
+
+    public static TypeClassPair getTypeArgumentAndClass(Type parameterizedType, int index) throws IllegalArgumentException {
+        final Type t = getTypeArgumentOfParameterizedType(parameterizedType, index);
         if (t == null)
             return null;
 
         final Class c = getClassOfType(t);
         if (c == null) {
-            throw new IllegalArgumentException(ImplMessages.GENERIC_TYPE_NOT_SUPPORTED(
-                    t, parameterizedType));
+            throw new IllegalArgumentException(ImplMessages.GENERIC_TYPE_NOT_SUPPORTED(t, parameterizedType));
         }
 
         return new TypeClassPair(t, c);
     }
 
-    private static Type getTypeArgumentOfParameterizedType(Type parameterizedType) {
+    private static Type getTypeArgumentOfParameterizedType(Type parameterizedType, int index) {
         if (!(parameterizedType instanceof ParameterizedType)) return null;
 
         ParameterizedType type = (ParameterizedType)parameterizedType;
         Type[] genericTypes = type.getActualTypeArguments();
-        if (genericTypes.length != 1) return null;
 
-        return genericTypes[0];
+        if (genericTypes.length <= index)
+            return null;
+
+        return genericTypes[index];
     }
 
     private static Class getClassOfType(Type type) {
