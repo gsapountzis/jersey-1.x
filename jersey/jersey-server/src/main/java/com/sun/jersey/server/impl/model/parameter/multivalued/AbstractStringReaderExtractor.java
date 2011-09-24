@@ -46,8 +46,8 @@ import com.sun.jersey.spi.StringReader;
  *
  * @author Paul.Sandoz@Sun.Com
  */
-abstract class AbstractStringReaderExtractor
-        implements MultivaluedParameterExtractor {
+abstract class AbstractStringReaderExtractor implements MultivaluedParameterExtractor {
+
     protected final StringReader sr;
     protected final String parameter;
     protected final String defaultStringValue;
@@ -56,9 +56,10 @@ abstract class AbstractStringReaderExtractor
         this.sr = sr;
         this.parameter = parameter;
         this.defaultStringValue = defaultStringValue;
+
         if (defaultStringValue != null) {
-            StringReader.ValidateDefaultValue validate = sr.getClass().
-                    getAnnotation(StringReader.ValidateDefaultValue.class);
+            StringReader.ValidateDefaultValue validate = sr.getClass().getAnnotation(StringReader.ValidateDefaultValue.class);
+
             if (validate == null || validate.value()) {
                 sr.fromString(defaultStringValue);
             }
