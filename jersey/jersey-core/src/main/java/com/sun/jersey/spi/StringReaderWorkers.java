@@ -71,6 +71,5 @@ public interface StringReaderWorkers {
      * @return a StringReader that matches the supplied criteria or null
      * if none is found.
      */
-    <T> StringReader<T> getStringReader(Class<T> type, Type genericType,
-            Annotation annotations[]);
+    <T> StringReader<T> getStringReader(Class<T> type, Type genericType, Annotation annotations[]);
 }
