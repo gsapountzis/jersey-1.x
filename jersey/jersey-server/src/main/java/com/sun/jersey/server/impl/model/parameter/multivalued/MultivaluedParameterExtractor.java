@@ -42,6 +42,8 @@ package com.sun.jersey.server.impl.model.parameter.multivalued;
 
 import javax.ws.rs.core.MultivaluedMap;
 
+import java.util.List;
+
 /**
  *
  * @author Paul.Sandoz@Sun.Com
@@ -53,6 +55,8 @@ public interface MultivaluedParameterExtractor {
     String getDefaultStringValue();
     
     Object extract(MultivaluedMap<String, String> parameters);
+
+    Object extractValue(List<String> values);
 
     Object extractDefaultValue();
 }

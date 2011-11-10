@@ -41,10 +41,13 @@
 package com.sun.jersey.server.impl.model.parameter.multivalued;
 
 import com.sun.jersey.api.container.ContainerException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MultivaluedMap;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.List;
 
 /**
  *
@@ -96,9 +99,23 @@ final class PrimitiveValueOfExtractor
         }
     }
 
+    private String getFirst(List<String> values) {
+        if (values != null && values.size() > 0) {
+            return values.get(0);
+        } else {
+            return null;
+        }
+    }
+
     @Override
     public Object extract(MultivaluedMap<String, String> parameters) {
-        String v = parameters.getFirst(parameter);
+        List<String> values = parameters.get(parameter);
+        return extractValue(values);
+    }
+
+    @Override
+    public Object extractValue(List<String> values) {
+        String v = this.getFirst(values);
         if (v != null && !v.trim().isEmpty()) {
             return getValue(v);
         }

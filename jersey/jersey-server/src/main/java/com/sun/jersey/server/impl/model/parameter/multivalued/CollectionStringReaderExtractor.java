@@ -64,6 +64,10 @@ abstract class CollectionStringReaderExtractor<V extends Collection>
 
     public Object extract(MultivaluedMap<String, String> parameters) {
         final List<String> stringList = parameters.get(parameter);
+        return extractValue(stringList);
+    }
+
+    public Object extractValue(List<String> stringList) {
         if (stringList != null) {
             final V valueList = getInstance();
             for (String v : stringList) {

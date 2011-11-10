@@ -42,6 +42,8 @@ package com.sun.jersey.server.impl.model.parameter.multivalued;
 
 import javax.ws.rs.core.MultivaluedMap;
 
+import java.util.List;
+
 
 /**
  *
@@ -68,8 +70,21 @@ final class StringExtractor implements MultivaluedParameterExtractor {
         return defaultValue;
     }
 
+    private String getFirst(List<String> values) {
+        if (values != null && values.size() > 0) {
+            return values.get(0);
+        } else {
+            return null;
+        }
+    }
+
     public Object extract(MultivaluedMap<String, String> parameters) {
-        String value = parameters.getFirst(parameter);
+        List<String> values = parameters.get(parameter);
+        return extractValue(values);
+    }
+
+    public Object extractValue(List<String> values) {
+        String value = this.getFirst(values);
         if (value != null) {
             return value;
         }

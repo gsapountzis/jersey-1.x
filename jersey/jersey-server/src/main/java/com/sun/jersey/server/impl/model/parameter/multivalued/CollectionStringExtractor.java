@@ -55,6 +55,7 @@ import javax.ws.rs.core.MultivaluedMap;
  */
 abstract class CollectionStringExtractor<V extends Collection<String>> 
         implements MultivaluedParameterExtractor {
+
     final String parameter;
     final String defaultValue;
 
@@ -73,6 +74,10 @@ abstract class CollectionStringExtractor<V extends Collection<String>>
 
     public Object extract(MultivaluedMap<String, String> parameters) {
         List<String> stringList = parameters.get(parameter);
+        return extractValue(stringList);
+    }
+
+    public Object extractValue(List<String> stringList) {
         if (stringList != null) {
             V copy = getInstance();
             copy.addAll(stringList);

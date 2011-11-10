@@ -40,6 +40,8 @@
 
 package com.sun.jersey.server.impl.model.parameter.multivalued;
 
+import java.util.List;
+
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MultivaluedMap;
 
@@ -56,8 +58,21 @@ final class StringReaderExtractor extends AbstractStringReaderExtractor {
         super(sr, parameter, defaultStringValue);
     }
 
+    private String getFirst(List<String> values) {
+        if (values != null && values.size() > 0) {
+            return values.get(0);
+        } else {
+            return null;
+        }
+    }
+
     public Object extract(MultivaluedMap<String, String> parameters) {
-        String v = parameters.getFirst(parameter);
+        List<String> values = parameters.get(parameter);
+        return extractValue(values);
+    }
+
+    public Object extractValue(List<String> values) {
+        String v = this.getFirst(values);
         Object result = null;
         if (v != null) {
             try {
