@@ -71,8 +71,7 @@ import com.sun.jersey.spi.inject.Injectable;
  */
 public class JAXBStringReaderProviders {
 
-    private static final Map<Class, JAXBContext> jaxbContexts =
-            new WeakHashMap<Class, JAXBContext>();
+    private static final Map<Class, JAXBContext> jaxbContexts = new WeakHashMap<Class, JAXBContext>();
 
     private final ContextResolver<JAXBContext> context;
 
@@ -127,8 +126,7 @@ public class JAXBStringReaderProviders {
         }
 
         public StringReader getStringReader(final Class type, Type genericType, Annotation[] annotations) {
-            final boolean supported = (type.getAnnotation(XmlRootElement.class) != null ||
-                    type.getAnnotation(XmlType.class) != null);
+            final boolean supported = (type.getAnnotation(XmlRootElement.class) != null || type.getAnnotation(XmlType.class) != null);
             if (!supported) {
                 return null;
             }
@@ -136,9 +134,7 @@ public class JAXBStringReaderProviders {
             return new StringReader() {
                 public Object fromString(String value) {
                     try {
-                        final SAXSource source = new SAXSource(
-                                spf.getValue().newSAXParser().getXMLReader(),
-                                new InputSource(new java.io.StringReader(value)));
+                        final SAXSource source = new SAXSource(spf.getValue().newSAXParser().getXMLReader(), new InputSource(new java.io.StringReader(value)));
 
                         final Unmarshaller u = getUnmarshaller(type);
                         if (type.isAnnotationPresent(XmlRootElement.class)) {
